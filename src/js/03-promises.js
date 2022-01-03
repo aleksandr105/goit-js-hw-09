@@ -1,18 +1,23 @@
 const formEl = document.querySelector('.form');
 
 formEl.addEventListener('submit', onRanderPromis);
-let position = 1;
 
 function onRanderPromis(e) {
   e.preventDefault();
-  const delay = Number(e.target.delay.value);
-  const step = Number(e.target.step.value);
-  const amount = Number(e.target.amount.value);
-
+  let delay = Number(e.target.delay.value);
+  let step = Number(e.target.step.value);
+  let amount = Number(e.target.amount.value);
+  let position = 0;
   intervalId = setInterval(() => {
-    if (amount === position) {
+    if (position >= amount) {
       clearInterval(intervalId);
+      return;
     }
+    position += 1;
+
+    setTimeout(() => {
+      delay += step;
+    }, 0);
 
     createPromise(position, delay)
       .then(({ position, delay }) => {
@@ -21,16 +26,18 @@ function onRanderPromis(e) {
       .catch(({ position, delay }) => {
         console.log(`❌ Rejected promise ${position} in ${delay}ms`);
       });
-  }, delay);
+  }, step);
 }
 
 function createPromise(position, delay) {
-  return (promise = new promise((resolve, reject) => {
-    const shouldResolve = Math.random() > 0.3;
-    if (shouldResolve) {
-      resolve({ position, delay });
-    } else {
-      reject({ position, delay });
-    }
-  }));
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const shouldResolve = Math.random() > 0.3;
+      if (shouldResolve) {
+        resolve({ position, delay });
+      } else {
+        reject({ position, delay });
+      }
+    }, delay);
+  });
 }
